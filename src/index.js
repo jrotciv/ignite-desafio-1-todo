@@ -76,14 +76,57 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
   // Complete aqui
+  const { title, deadline } = request.body;
+  const { id } = request.params;
+  const { user } = request;
+
+  const todoAlreadyExist = user.todos.find((todo) => todo.id === id);
+
+  if(!todoAlreadyExist) {
+    return response.status(404).json({error: "Todo not found"});
+  }
+
+  todoAlreadyExist.title = title;
+  todoAlreadyExist.deadline = new Date(deadline);
+
+  return response.json(todoAlreadyExist);
+
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
   // Complete aqui
+  const { id } = request.params;
+  const { user } = request;
+
+  const todoAlreadyExist = user.todos.find((todo) => todo.id === id);
+
+  if(!todoAlreadyExist) {
+    return response.status(404).json({error: "Todo not found"});
+  }
+
+  todoAlreadyExist.done = true;
+
+  return response.json(todoAlreadyExist);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   // Complete aqui
+  const { id } = request.params;
+  const { user } = request;
+
+  const todoAlreadyExist = user.todos.some((todo) => todo.id === id);
+
+  if(!todoAlreadyExist) {
+    return response.status(404).json({error: "Todo not found"});
+  }
+
+  user.todos.filter((todo) => {
+    if(todo.id === id){
+      user.todos.splice(todo, 1);
+    }
+  });
+
+  return response.status(204).send();
 });
 
 module.exports = app;
